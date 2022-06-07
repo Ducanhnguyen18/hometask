@@ -24,7 +24,10 @@ fout.open(file_name_2, std::fstream::out);
 std::map<std::string, int>::iterator it;
 for (it = words.begin(); it != words.end(); it++)
 {
-fout << it->first << " " << "[" << it->second << "]" << std::endl;;
+    if(it->second > 1)
+    {
+        fout << it->first << " " << "[" << it->second << "]" << std::endl;
+    }
 }
 fs.close();
 fout.close();
