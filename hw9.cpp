@@ -1,47 +1,73 @@
-#include<iostream>
-#include<fstream>
-#include<map>
-#include<string>
+#include <iostream>
+ #include <string>
+ #include <sstream>
+ #include <fstream>
+ #include <vector>
+ using namespace std;
 
-int main()
-{
-try
-{
-std::string file_name = "input.txt";
-std::fstream fs;
-fs.open(file_name, std::fstream::in);
-std::string word;
-std::map<std::string, int> words;
-while (!fs.eof())
-{
-fs >> word;
-words[word]++;
-}
-try {
-std::string file_name_2 = "output.txt";
-std::fstream fout;
-fout.open(file_name_2, std::fstream::out);
-std::map<std::string, int>::iterator it;
-for (it = words.begin(); it != words.end(); it++)
-{
-    if(it->second > 1)
-    {
-        fout << it->first << " " << "[" << it->second << "]" << std::endl;
-    }
-}
-fs.close();
-fout.close();
-}
-catch (const std::exception& ex)
-{
-    std::cout <<"Error open out file" << ex.what() << std::endl;
-    }
-    }
-    catch (const std::exception &ex)
-    {
-    std::cout << "Error open file" << ex.what();
-    return -1;
-    }
+ struct word {
+ 	int count;
+ 	string data;
+ };
 
-    return 0;
-    }
+ void add(string s, vector<word>& words) {
+ 	bool appear = false;
+ 	for (int i = 0; i < words.size(); i++) {
+ 		if (words[i].data == s) {
+ 			appear = true;
+ 			words[i].count++;
+ 			break;
+ 		}
+ 	}
+ 	if (!appear) {
+ 		word tmp;
+ 		tmp.data = s;
+ 		tmp.count = 1;
+ 		words.push_back(tmp);
+ 	}
+ }
+
+ void split(string s, vector<word>& words) {
+ 	stringstream stringStream(s);
+ 	string line;
+ 	while (getline(stringStream, line))
+ 	{
+ 		size_t prev = 0, pos;
+ 		while ((pos = line.find_first_of(" ';',.", prev)) != string::npos)
+ 		{
+ 			if (pos > prev)
+ 				add(line.substr(prev, pos - prev),words);
+ 			prev = pos + 1;
+ 		}
+ 		if (prev < line.length()) add(line.substr(prev, string::npos), words);
+ 	}
+
+ }
+
+ void readFile(string& text) {
+ 	ifstream infile("input.txt");
+
+ 	while (!infile.eof()) {
+ 		string line;
+ 		getline(infile, line);
+ 		text += line;
+ 	}
+ 	infile.close();
+ }
+
+ void writeFile(vector<word>& words) {
+ 	ofstream outfile("output.txt");
+ 	for (int i = 0; i < words.size(); i++) {
+ 		if (words[i].count > 1)
+ 		outfile << words[i].data << " [" << words[i].count << "]" << endl;
+ 	}
+ 	outfile.close();
+ }
+
+ int main() {
+ 	string text = "";
+ 	vector<word> words;
+ 	readFile(text);
+ 	split(text, words);
+ 	writeFile(words);
+ }
